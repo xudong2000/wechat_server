@@ -59,5 +59,5 @@ const selectUserByParams = (data) => {
 module.exports = {
   createUser,
   selectUser,
-  selectUserByParams
+  selectUserByParams,
 }
