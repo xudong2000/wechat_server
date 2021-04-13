@@ -18,37 +18,39 @@ const io = require('socket.io')(server, {
 //允许跨域
 app.use(require('cors')())
 
-let userList = []
+// 导入模型
+const { updateUserInfo } = require(process.cwd() + '/model/user')
 
 // 监视所有连接(当有一个客户端连接上时回调)
 io.on('connection', (socket) => {
   console.log('客户端已经连接')
-  updateUser()
-  let userName = ''
 
-  // 绑定自定义事件监听，接收客户端发送的消息
-  socket.on('user', (name, callback) => {
-    if (name === null) {
-      return
-    }
-    callback(true)
-    userName = name
-    userList = userName
-    console.log(userList)
-    updateUser()
+  let userData = []
+
+  socket.on('login', async (data) => {
+    userData = data
+    console.log('当前登录用户' + data.username)
+    const update = [{ username: data.username }, { $set: { isOnline: true } }]
+    const res = await updateUserInfo(update[0], update[1])
+    console.log(res)
   })
 
-  socket.on('disconnect', () => {
-    console.log('客户端断开连接')
-    userList.splice(userList.indexOf(userName), 1)
-    console.log(userList)
-    updateUser()
+  socket.on('logout', async (data) => {
+    console.log(data.username + '已退出登录')
+    const update = [{ username: data.username }, { $set: { isOnline: false } }]
+    const res = await updateUserInfo(update[0], update[1])
+    console.log(res)
   })
 
-  function updateUser() {
-    // 向客户端发送消息
-    io.emit('allUser', userList)
-  }
+  // socket.on('disconnect', async () => {
+  //   console.log(userData.username + '客户端断开连接')
+  //   const update = [
+  //     { username: userData.username },
+  //     { $set: { isOnline: false } },
+  //   ]
+  //   const res = await updateUserInfo(update[0], update[1])
+  //   console.log(res)
+  // })
 })
 
 server.listen(2077, () => {

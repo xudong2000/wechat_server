@@ -12,6 +12,7 @@ const userModel = db.model('user', {
   avatar: { type: String, default: '' }, // 头像
   bgImg: { type: String, default: '' }, // 背景图片
   friends: { type: Array, default: [] }, // 我的好友
+  isOnline: { type: Boolean, default: false }, // 是否在线
   isDelete: { type: Boolean, default: false }, // 是否注销账号
 })
 
@@ -55,9 +56,23 @@ const selectUserByParams = (data) => {
     })
 }
 
+// 修改用户信息
+const updateUserInfo = (query, data) => {
+  return userModel
+    .updateOne(query, data)
+    .then((res) => {
+      return res
+    })
+    .catch((err) => {
+      console.log('数据修改失败' + err)
+      return []
+    })
+}
+
 // 导出模型
 module.exports = {
   createUser,
   selectUser,
   selectUserByParams,
+  updateUserInfo,
 }
